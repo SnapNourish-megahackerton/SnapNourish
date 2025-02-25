@@ -47,7 +47,6 @@ FIREBASE_SERVICE_ACCOUNT=path/to/service-account.json
 ```
 
 ## Local Development
-<<<<<<< HEAD
 
 ```bash
 # Start development server
@@ -56,38 +55,6 @@ npm run start:dev
 # Run tests
 npm test
 
-# Run linting
-npm run lint
-```
-
-## Docker Deployment
-
-1. Build the Docker image:
-
-```bash
-docker build --platform linux/amd64 -t [gcr-path]/nutrition-backend .
-```
-
-2. Push to Google Container Registry:
-
-```bash
-docker push [your-gcr-path]/nutrition-backend
-```
-
-3. Deploy to Cloud Run:
-
-=======
-
-```bash
-# Start development server
-npm run start:dev
-
-# Run tests
-npm test
-
-# Run linting
-npm run lint
-```
 
 ## Docker Deployment
 
@@ -105,7 +72,6 @@ docker push [gcr-path]/nutrition-backend
 
 3. Deploy to Cloud Run:
 
->>>>>>> 91ecadcc3d350ad23946abb6035e427dc93c9b84
 ```bash
 gcloud run deploy nutrition-backend \
     --image [gcr-path]/nutrition-backend \
@@ -132,11 +98,11 @@ src/
 
 Analyzes food images from Firebase Storage.
 
-<<<<<<< HEAD
 Request:
 
 ```json
 {
+  "userId":  "string" // Firebase UID
   "imageUrl": "string" // Firebase Storage URL
 }
 ```
@@ -145,21 +111,40 @@ Response:
 
 ```json
 {
-  "ingredients": [
-    {
-      "name": "string",
-      "calories": "number",
-      "protein": "number",
-      "carbohydrates": "number",
-      "fats": "number",
-      "carbon_footprint": "number"
-    }
-  ]
+  "foodData": {
+    "photoUrl": "string",
+    "ingredients": [
+      {
+        "name": "string",
+        "calories": "number",
+        "carbohydrates": "number",
+        "protein": "number",
+        "saturated_fat": "number",
+        "unsaturated_fat": "number",
+        "fiber": "number",
+        "carbon_footprint": "number"
+      }
+    ],
+    "recommendations": [
+      {
+        "name": "string",
+        "description": "string"
+      }
+    ],
+    "nutrient_deficiencies": [
+      {
+        "nutrient": "string",
+        "current_intake": "number",
+        "recommended_intake": "number",
+        "deficiency_amount": "string",
+        "suggested_sources": ["string"]
+      }
+    ]
+  },
+  "storageUrl": "string"
 }
 ```
 
-=======
->>>>>>> 91ecadcc3d350ad23946abb6035e427dc93c9b84
 ## Dependencies
 
 Main dependencies:
@@ -173,13 +158,6 @@ Main dependencies:
 ```bash
 # Unit tests
 npm run test
-
-<<<<<<< HEAD
-# E2E tests
-npm run test:e2e
-
-=======
->>>>>>> 91ecadcc3d350ad23946abb6035e427dc93c9b84
 
 ## Resources
 
