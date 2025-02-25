@@ -175,7 +175,7 @@ This NestJS Backend helps the SnapNourish app by:
 - Analyzing and returning:
   - Nutritional information (calories, protein, etc.)
   - Environmental impact data
-  - Sustainable and healthy diet recommendations
+  - Sustainable and Healthy diet recommendations
 - Handling data storage and retrieval
 - Supporting JPG format images
 
