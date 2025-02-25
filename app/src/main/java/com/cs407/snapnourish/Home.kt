@@ -60,15 +60,7 @@ class Home : AppCompatActivity() {
                 startActivity(intent)
             }
         }
-
-        // to CameraX
-        findViewById<Button>(R.id.btn_scan_meal).setOnClickListener {
-            checkAndRequestCameraPermission {
-                val intent = Intent(this, CameraActivity::class.java)
-                intent.putExtra("isRecipe", true)
-                startActivity(intent)
-            }
-        }
+        
     }
 
     private fun checkAndRequestCameraPermission(onPermissionGranted: () -> Unit) {

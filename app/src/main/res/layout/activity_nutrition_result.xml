@@ -122,6 +122,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/missingNutrientsTextView" />
 
+    <TextView
+        android:id="@+id/carbonFootprintTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="32dp"
+        android:background="#E0E0E0"
+        android:gravity="start"
+        android:padding="15dp"
+        android:text="Carbon Footprint will be displayed here."
+        android:textColor="@android:color/black"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recommendIngredientsTextView" />
+
+
     <LinearLayout
         android:id="@+id/bottom_buttons"
         android:layout_width="match_parent"

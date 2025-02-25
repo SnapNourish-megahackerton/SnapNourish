@@ -9,17 +9,22 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.Source
 import com.google.firebase.storage.FirebaseStorage
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import android.os.Handler
+import android.os.Looper
+
 
 class NutritionResultActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
-
-
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,130 +36,132 @@ class NutritionResultActivity : AppCompatActivity() {
         val nutritionInfoTextView = findViewById<TextView>(R.id.nutritionInfoTextView)
         val missingNutrientsTextView = findViewById<TextView>(R.id.missingNutrientsTextView)
         val recommendIngredientsTextView = findViewById<TextView>(R.id.recommendIngredientsTextView)
+        val carbonFootprintTextView = findViewById<TextView>(R.id.carbonFootprintTextView)
 
-        val nutritionInfoDocumentId = "WOgJ7ExoqOkWgLro8hZb"
-        val missingNutrientsDocumentId = "9ngNVMNGoSCd23kiIVRq"
+        fetchLatestNutritionData(
+            resultImageView, foodNameTextView, timestampTextView,
+            nutritionInfoTextView, missingNutrientsTextView, recommendIngredientsTextView, carbonFootprintTextView
+        )
 
-
-//        val imageUri = intent.getStringExtra("IMAGE_URI")
-//        val foodName = intent.getStringExtra("FOOD_NAME") ?: "Unknown Food"
-//        val nutritionInfo = intent.getStringExtra("NUTRITION_INFO") ?: "No nutrition information available."
-//        val timestamp = intent.getLongExtra("TIMESTAMP", System.currentTimeMillis())
-
-//        // image load
-//        imageUri?.let {
-//            Glide.with(this).load(Uri.parse(it)).into(resultImageView)
-//        }
-//
-//        // food name
-//        foodNameTextView.text = foodName
-//
-//        // timestamp
-//        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-//        val formattedTimestamp = dateFormat.format(Date(timestamp))
-//        timestampTextView.text = "Captured on: $formattedTimestamp"
-//
-//        // nutrition info
-//        nutritionInfoTextView.text = nutritionInfo
-
-        db.collection("nutrition_info").document(nutritionInfoDocumentId).get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    // Load image
-                    val photoUrl = document.getString("photoUrl")
-                    photoUrl?.let { gsUrl ->
-                        loadImageFromStorage(gsUrl, resultImageView)
-                    }
-
-                    // Set food name
-                    foodNameTextView.text = "Food: Burger"
-
-                    // Set timestamp
-
-                    val timestamp = intent.getLongExtra("TIMESTAMP", System.currentTimeMillis())
-                    //val timestamp = document.getTimestamp("timestamp")?.toDate()
-                    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-                    timestampTextView.text = "Captured on: ${timestamp?.let { dateFormat.format(it) }}"
-
-                    // Set nutrition info
-                    val calories = document.getDouble("calories") ?: 0.0
-                    val carbohydrates = document.getDouble("carbohydrates") ?: 0.0
-                    val protein = document.getDouble("protein") ?: 0.0
-                    val fiber = document.getDouble("fiber") ?: 0.0
-                    val saturatedFat = document.getDouble("saturatedFat") ?: 0.0
-                    val unsaturatedFat = document.getDouble("unsaturatedFat") ?: 0.0
-
-                    val nutritionInfo = """
-                        Calories: $calories
-                        Carbohydrates: $carbohydrates g
-                        Protein: $protein g
-                        Fiber: $fiber g
-                        Saturated Fat: $saturatedFat g
-                        Unsaturated Fat: $unsaturatedFat g
-                    """.trimIndent()
-                    nutritionInfoTextView.text = nutritionInfo
-                }
-            }
-            .addOnFailureListener {
-                nutritionInfoTextView.text = "Failed to load nutrition information."
-            }
-
-        // Fetch missing nutrients and recommend ingredients
-        db.collection("missingNutrients").document(missingNutrientsDocumentId).get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    // Set missing nutrients
-                    val missingNutrients = document.get("missingNutrients") as? Map<String, Double>
-                    val missingNutrientsText = missingNutrients?.entries?.joinToString("\n") { (key, value) ->
-                        "$key: $value g"
-                    } ?: "No missing nutrients."
-                    missingNutrientsTextView.text = missingNutrientsText
-
-                    // Set recommended ingredients
-                    val recommendIngredients = document.get("recommendIngredients") as? List<String>
-                    val recommendIngredientsText = recommendIngredients?.joinToString("\n") ?: "No recommendations available."
-                    recommendIngredientsTextView.text = recommendIngredientsText
-                }
-            }
-            .addOnFailureListener {
-                missingNutrientsTextView.text = "Failed to load missing nutrients."
-                recommendIngredientsTextView.text = "Failed to load recommendations."
-            }
-
-
-
-        // Navigate to Home screen(icon1)
+        // Navigation buttons
         findViewById<Button>(R.id.btn_home).setOnClickListener {
-            val intent = Intent(this, Home::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, Home::class.java))
         }
-
-        //Navigate to History screen(icon2)
         findViewById<Button>(R.id.btn_history).setOnClickListener {
-            val intent = Intent(this, HistoryActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, HistoryActivity::class.java))
         }
-
-        //Navigate to Chatbot screen(icon3)
         findViewById<Button>(R.id.btn_chat).setOnClickListener {
-            val intent = Intent(this, ChatbotActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, ChatbotActivity::class.java))
         }
-
-        // Navigate to Settings screen(icon4)
         findViewById<Button>(R.id.btn_settings).setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
     }
 
-    private fun loadImageFromStorage(gsUrl: String, imageView: ImageView) {
-        val storageReference = storage.getReferenceFromUrl(gsUrl)
-        storageReference.downloadUrl.addOnSuccessListener { uri ->
-            Glide.with(this).load(uri).into(imageView)
-        }.addOnFailureListener { exception ->
-            Log.e("Firebase", "Failed to load image from gs:// URL", exception)
+    private fun fetchLatestNutritionData(
+        resultImageView: ImageView,
+        foodNameTextView: TextView,
+        timestampTextView: TextView,
+        nutritionInfoTextView: TextView,
+        missingNutrientsTextView: TextView,
+        recommendIngredientsTextView: TextView,
+        carbonFootprintTextView: TextView
+    ) {
+        val user = auth.currentUser
+        if (user == null) {
+            Log.e("NutritionResultActivity", "User is not logged in.")
+            return
         }
+
+        val nutritionRef = db.collection("users").document(user.uid).collection("nutrition_info")
+
+        // UI를 잠시 로딩 상태로 변경
+        foodNameTextView.text = "Loading latest data..."
+        timestampTextView.text = ""
+        nutritionInfoTextView.text = ""
+        missingNutrientsTextView.text = ""
+        recommendIngredientsTextView.text = ""
+        carbonFootprintTextView.text = ""
+
+        nutritionRef.orderBy("timestamp", Query.Direction.DESCENDING)
+            .limit(1)
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    Log.e("Firestore", "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+
+                if (snapshots != null && !snapshots.isEmpty) {
+                    val latestDoc = snapshots.documents[0]
+                    val timestamp = latestDoc.getTimestamp("timestamp")?.toDate()
+
+                    // 🛑 최신 데이터인지 확인 (현재 시간과 비교)
+                    if (timestamp != null) {
+                        val currentTime = System.currentTimeMillis()
+                        val dataTime = timestamp.time
+
+                        // 데이터가 너무 오래된 경우 (1초 이상 차이 나면 무시)
+                        if (currentTime - dataTime > 8000) {
+                            Log.w("Firestore", "Skipping outdated data.")
+                            return@addSnapshotListener
+                        }
+                    }
+
+                    val photoUrl = latestDoc.getString("photoUrl") ?: ""
+                    val ingredientsList = latestDoc.get("ingredients") as? List<Map<String, Any>> ?: emptyList()
+                    val nutrientDeficiencies = latestDoc.get("nutrient_deficiencies") as? List<Map<String, Any>> ?: emptyList()
+                    val recommendations = latestDoc.get("recommendations") as? List<Map<String, Any>> ?: emptyList()
+
+                    // UI 업데이트
+                    Glide.with(this).load(photoUrl).into(resultImageView)
+
+                    val foodName = ingredientsList.firstOrNull()?.get("name") as? String ?: "Unknown Food"
+                    foodNameTextView.text = "Food: $foodName"
+
+                    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+                    timestampTextView.text = "Captured on: ${timestamp?.let { dateFormat.format(it) } ?: "Unknown"}"
+
+                    // 영양 정보 (carbon footprint 제외)
+                    val nutritionText = ingredientsList.joinToString("\n") { ingredient ->
+                        val name = ingredient["name"] as? String ?: "Unknown"
+                        val values = ingredient.filterKeys { it != "carbon_footprint" && it != "name" }
+
+                        val details = values.entries.joinToString(", ") { (key, value) ->
+                            "$key: $value"
+                        }
+
+                        "$name → $details"
+                    }
+                    nutritionInfoTextView.text = nutritionText
+
+                    // Carbon footprint
+                    val carbonFootprintValues = ingredientsList.mapNotNull { it["carbon_footprint"] as? String }
+                    val carbonFootprintText = if (carbonFootprintValues.isNotEmpty()) {
+                        "Carbon Footprint: " + carbonFootprintValues.joinToString(", ")
+                    } else {
+                        "Carbon Footprint: No data available"
+                    }
+                    carbonFootprintTextView.text = carbonFootprintText
+
+                    // 부족한 영양소
+                    val nutrientText = nutrientDeficiencies.joinToString("\n") { deficiency ->
+                        val nutrient = deficiency["nutrient"] as? String ?: "Unknown"
+                        val amount = deficiency["deficiency_amount"] as? String ?: "N/A"
+                        "$nutrient: $amount"
+                    }
+                    missingNutrientsTextView.text = nutrientText
+
+                    // 추천 음식
+                    val recommendText = recommendations.joinToString("\n") { rec ->
+                        val name = rec["name"] as? String ?: "Unknown"
+                        val description = rec["description"] as? String ?: "N/A"
+                        "$name: $description"
+                    }
+                    recommendIngredientsTextView.text = recommendText
+                } else {
+                    Log.e("NutritionResultActivity", "No nutrition data found.")
+                }
+            }
     }
 
 

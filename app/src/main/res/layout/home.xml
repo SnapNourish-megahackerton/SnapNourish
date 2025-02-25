@@ -19,32 +19,22 @@
         tools:layout_editor_absoluteY="-85dp" />
 
 
-    <Button
-        android:id="@+id/btn_scan_nutrition"
-        android:layout_width="330dp"
-        android:layout_height="110dp"
-        android:layout_marginTop="330dp"
-        android:backgroundTint="#32CD32"
-        android:text="Scan for\nNutrition Information"
-        android:textColor="@android:color/white"
-        android:textSize="22sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btn_scan_meal"
-        android:layout_width="330dp"
-        android:layout_height="110dp"
-        android:backgroundTint="#DAA520"
-        android:text="Scan for\nMeal Recommendations"
+        android:id="@+id/btn_scan_nutrition"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginBottom="120dp"
+        android:background="@drawable/round_button"
+        android:text="Scan for\nNutrition Information"
         android:textColor="@android:color/white"
-        android:textSize="22sp"
-        app:layout_constraintTop_toBottomOf="@id/btn_scan_nutrition"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/bottom_buttons"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp" />
+        app:layout_constraintStart_toStartOf="parent" />
+
+
 
     <LinearLayout
         android:id="@+id/bottom_buttons"
