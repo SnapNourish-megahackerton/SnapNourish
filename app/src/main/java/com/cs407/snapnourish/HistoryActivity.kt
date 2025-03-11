@@ -1,8 +1,8 @@
 package com.cs407.snapnourish
 
+import ImageAdapter
 import android.content.Intent
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
@@ -12,18 +12,22 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.cs407.snapnourish.model.Photo
-import androidx.recyclerview.widget.DividerItemDecoration
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import android.widget.Toast
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuth
 
 class HistoryActivity : AppCompatActivity() {
 
     private lateinit var photoRecyclerView: RecyclerView
     private lateinit var currentMonthTextView: TextView
     private var calendar = Calendar.getInstance()
-    private lateinit var adapter: PhotoAdapter
+    private lateinit var imageAdapter: ImageAdapter
+    private val imageUrls = mutableListOf<String>()
+    private val auth = FirebaseAuth.getInstance()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,26 +40,32 @@ class HistoryActivity : AppCompatActivity() {
             insets
         }
 
+        // Set up the views
         photoRecyclerView = findViewById(R.id.photoRecyclerView)
         currentMonthTextView = findViewById(R.id.currentMonth)
 
-        adapter = PhotoAdapter(getPhotosForCurrentMonth())
+        updateMonthDisplay()
+        fetchUserImagesForMonth()
+
+        // Set up the RecyclerView
+        imageAdapter = ImageAdapter(imageUrls)
         photoRecyclerView.layoutManager = GridLayoutManager(this, 2)
-        photoRecyclerView.adapter = adapter
+        photoRecyclerView.adapter = imageAdapter
 
         val itemDecoration = SpaceItemDecoration(16) // 16dp 간격
         photoRecyclerView.addItemDecoration(itemDecoration)
 
-        updateMonthDisplay()
-
+        // Buttons to change the month
         findViewById<Button>(R.id.btn_previous_month).setOnClickListener {
             calendar.add(Calendar.MONTH, -1)
             updateMonthDisplay()
+            fetchUserImagesForMonth()
         }
 
         findViewById<Button>(R.id.btn_next_month).setOnClickListener {
             calendar.add(Calendar.MONTH, 1)
             updateMonthDisplay()
+            fetchUserImagesForMonth()
         }
 
 
@@ -82,33 +92,37 @@ class HistoryActivity : AppCompatActivity() {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
-
     }
 
     private fun updateMonthDisplay() {
         val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
         currentMonthTextView.text = dateFormat.format(calendar.time)
-
-        val updatedPhotos = getPhotosForCurrentMonth()
-        adapter = PhotoAdapter(updatedPhotos)
-        photoRecyclerView.adapter = adapter
     }
 
-    private fun getPhotosForCurrentMonth(): List<Photo> {
-        val currentMonth = calendar.get(Calendar.MONTH)
+    private fun fetchUserImagesForMonth() {
 
-        return if (currentMonth == Calendar.DECEMBER) {
-            listOf(
-                Photo(R.drawable.food1, "2024-12-1"),
-                Photo(R.drawable.food2, "2024-12-2"),
-                Photo(R.drawable.food3, "2024-12-3"),
-                //Photo(R.drawable.food4, "2024-12-4"),
-                //Photo(R.drawable.food5, "2024-12-5")
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            val userId = user.uid
 
-            )
+            val db = FirebaseFirestore.getInstance()
+
+            // Query Firestore for nutrition info
+            db.collection("users").document(userId)
+                .collection("nutrition_info")
+                .get()
+                .addOnSuccessListener { documents ->
+                    val urls = documents.mapNotNull { it.getString("photoUrl") }
+                    imageUrls.clear()
+                    imageUrls.addAll(urls)
+                    imageAdapter.notifyDataSetChanged()
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("Firestore", "Error fetching images", exception)
+                    Toast.makeText(this, "Error: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
         } else {
-            emptyList()
+            Log.e("HistoryActivity", "User is not logged in")
         }
     }
 }
-
