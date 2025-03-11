@@ -78,6 +78,7 @@ dependencies {
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
     implementation ("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
+    implementation("androidx.cardview:cardview:1.0.0")
 
     // Dependencies for Gemini Chatbot
     // add the dependency for the Google AI client SDK for Android
