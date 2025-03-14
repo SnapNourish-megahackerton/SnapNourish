@@ -18,6 +18,7 @@ import java.util.Locale
 import android.widget.Toast
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.auth.FirebaseAuth
+import java.util.Date
 
 class HistoryActivity : AppCompatActivity() {
 
@@ -48,7 +49,13 @@ class HistoryActivity : AppCompatActivity() {
         fetchUserImagesForMonth()
 
         // Set up the RecyclerView
-        imageAdapter = ImageAdapter(imageUrls)
+        // Initialize the ImageAdapter with a click listener
+        imageAdapter = ImageAdapter(imageUrls) { imageUrl ->
+            // This lambda gets triggered when an image is clicked
+            val intent = Intent(this, NutritionResultActivity::class.java)
+            intent.putExtra("photoUrl", imageUrl)  // Pass the clicked image's URL
+            startActivity(intent)
+        }
         photoRecyclerView.layoutManager = GridLayoutManager(this, 2)
         photoRecyclerView.adapter = imageAdapter
 
@@ -100,16 +107,23 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun fetchUserImagesForMonth() {
-
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             val userId = user.uid
-
             val db = FirebaseFirestore.getInstance()
 
-            // Query Firestore for nutrition info
+            // Get the selected month (in format "yyyy-MM")
+            val monthYear = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(calendar.time)
+
+            // Get the start and end of the current month for filtering
+            val startOfMonth = getStartOfMonth(calendar)
+            val endOfMonth = getEndOfMonth(calendar)
+
+            // Query Firestore for nutrition info within the selected month range
             db.collection("users").document(userId)
                 .collection("nutrition_info")
+                .whereGreaterThanOrEqualTo("timestamp", startOfMonth)
+                .whereLessThanOrEqualTo("timestamp", endOfMonth)
                 .get()
                 .addOnSuccessListener { documents ->
                     val urls = documents.mapNotNull { it.getString("photoUrl") }
@@ -124,5 +138,20 @@ class HistoryActivity : AppCompatActivity() {
         } else {
             Log.e("HistoryActivity", "User is not logged in")
         }
+    }
+
+
+    // Get the start of the current month (first day of the month)
+    private fun getStartOfMonth(calendar: Calendar): Date {
+        val startOfMonth = Calendar.getInstance()
+        startOfMonth.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), 1, 0, 0, 0)
+        return startOfMonth.time
+    }
+
+    // Get the end of the current month (last day of the month)
+    private fun getEndOfMonth(calendar: Calendar): Date {
+        val endOfMonth = Calendar.getInstance()
+        endOfMonth.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.getActualMaximum(Calendar.DAY_OF_MONTH), 23, 59, 59)
+        return endOfMonth.time
     }
 }
