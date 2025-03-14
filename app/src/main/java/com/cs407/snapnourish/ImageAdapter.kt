@@ -6,7 +6,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.cs407.snapnourish.R
 
-class ImageAdapter(private val imageUrls: List<String>) : RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
+class ImageAdapter(private val imageUrls: List<String>,
+    private val onImageClick: (String) -> Unit
+): RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_image, parent, false)
@@ -20,6 +22,10 @@ class ImageAdapter(private val imageUrls: List<String>) : RecyclerView.Adapter<I
             .placeholder(R.drawable.image_loading)
             .error(R.drawable.image_error)
             .into(holder.imageView)  // Load the image into the ImageView
+
+        holder.itemView.setOnClickListener {
+            onImageClick(imageUrl)
+        }
     }
 
     override fun getItemCount(): Int {
