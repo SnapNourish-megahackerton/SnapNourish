@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="#DFF6E0">
+
+    <ImageView
+        android:id="@+id/backgroundImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="Home Image"
+        android:scaleType="centerCrop"
+        android:src="@drawable/transition_background"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="-85dp" />
+
+    <!-- Captured Image -->
+    <ImageView
+        android:id="@+id/capturedImage"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        android:scaleType="centerCrop"
+        android:background="@color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/viewNutritionButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <!-- View Nutrition Button -->
+    <Button
+        android:id="@+id/viewNutritionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View Nutrition Information"
+        android:backgroundTint="#32CD32"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/capturedImage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="30dp" />
+
+
+
+    <LinearLayout
+        android:id="@+id/bottom_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/backgroundImage"
+        android:layout_marginBottom="60dp">
+
+        <Button
+            android:id="@+id/btn_home"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_home"
+            android:scaleX="0.5"
+            android:scaleY="0.5"
+            android:contentDescription="Home"/>
+
+        <Button
+            android:id="@+id/btn_history"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_history"
+            android:scaleX="0.5"
+            android:scaleY="0.5"
+            android:contentDescription="Nutrition History"/>
+
+        <Button
+            android:id="@+id/btn_chat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_chat"
+            android:scaleX="0.5"
+            android:scaleY="0.5"
+            android:contentDescription="Chat"/>
+
+        <Button
+            android:id="@+id/btn_settings"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_settings"
+            android:scaleX="0.5"
+            android:scaleY="0.5"
+            android:contentDescription="Settings"/>
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

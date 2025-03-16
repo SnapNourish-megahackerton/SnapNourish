@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "717980138638",
+    "project_id": "snapnourish-3028a",
+    "storage_bucket": "snapnourish-3028a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:717980138638:android:667f28b5295ca1031a1ddf",
+        "android_client_info": {
+          "package_name": "com.cs407.snapnourish"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDATqlGTkdJqsAb5tjwsBFDHctMOBZjPk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
